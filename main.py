@@ -15,24 +15,28 @@ def hablar(texto):
     engine.runAndWait()
 
 def ejecutar_comando(comando):
-    if "modo sexo activado" in comando:      
+    if "sexo activado" in comando:      
         texto = "Modo sexo: activado"
 
+        # Se crean dos hilos para que se ejecute el text to speech y el comando de spotify al mismo tiempo
         hilo_hablar = threading.Thread(target=hablar, args=(texto,))
         hilo_hablar.start()
 
-        # Hilo para reproducir la canción en Spotify
         hilo_spotify = threading.Thread(target=reproducir_cancion_en_spotify, args=("Azote",))
         hilo_spotify.start()
 
-        #hablar(texto)
-        #reproducir_cancion_en_spotify("Azote")
+        # Se espera a que terminen los hilos
+        hilo_hablar.join()
+        hilo_spotify.join()
+        
+        # Abre el League of Legends
         subprocess.run([r"C:\Riot Games\Riot Client\RiotClientServices.exe"])
 
     elif "alerta de intruso" in comando:
         texto = ""
         for _ in range(1000):
             texto += "Alerta de intruso "
+
 
     
 
