@@ -1,5 +1,5 @@
 # SOFIA
-Asistente virtual para ayudarme con tareas básicas (y es divertido)
+Asistente virtual para ayudar con tareas básicas
 
 ## Instalación
 ```

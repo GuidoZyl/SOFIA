@@ -1,66 +1,83 @@
-import subprocess
-import speech_recognition as sr
+import json
 import keyboard
-import pyttsx3 as tts
 import threading
-from prueba_spoti import reproducir_cancion_en_spotify
+from funciones import hablar, ejecutar_app, reproducir_audio
 
-recognizer = sr.Recognizer()
+Instruccion = list[list[str]]
 
-def hablar(texto):
-    engine = tts.init()
-    engine.setProperty('rate', 145)
-    engine.setProperty('voice', 'spanish')
-    engine.say(texto)
-    engine.runAndWait()
-
-def ejecutar_comando(comando):
-    if "sexo activado" in comando:      
-        texto = "Modo sexo: activado"
-
-        # Se crean dos hilos para que se ejecute el text to speech y el comando de spotify al mismo tiempo
-        hilo_hablar = threading.Thread(target=hablar, args=(texto,))
-        hilo_hablar.start()
-
-        hilo_spotify = threading.Thread(target=reproducir_cancion_en_spotify, args=("Azote",))
-        hilo_spotify.start()
-
-        # Se espera a que terminen los hilos
-        hilo_hablar.join()
-        hilo_spotify.join()
-        
-        # Abre el League of Legends
-        subprocess.run([r"C:\Riot Games\Riot Client\RiotClientServices.exe"])
-
-    elif "alerta de intruso" in comando:
-        texto = ""
-        for _ in range(1000):
-            texto += "Alerta de intruso "
+teclas_presionadas = set()
+ejecutando = False
 
 
+# Cargar la configuración
+def cargar_configuracion():
+    with open("config.json", "r", encoding="utf-8") as archivo:
+        return json.load(archivo)
     
+config = cargar_configuracion()
 
-def escuchar_comando():
-    with sr.Microphone() as source:
-        print("Escuchando...")
-        recognizer.adjust_for_ambient_noise(source)
-        audio = recognizer.listen(source)
-    try:
-        comando = recognizer.recognize_google(audio, language='es-ES')
-        print("Comando: " + comando)
-        ejecutar_comando(comando)
-    except sr.UnknownValueError:
-        print("No se ha entendido el comando")
-    except sr.RequestError as e:       
-        print("No se ha podido obtener el resultado; {0}".format(e))
+# Decorador que recibe dos listas y las une para pasarlas a main()
+def unir_listas(func):
+    def wrapper(funciones, parametros):
+        instrucciones = [[funciones[i], parametros[i]] for i in range(len(funciones))]
+        return func(instrucciones)
+    return wrapper
 
-def on_key_event(e):
-    if e.event_type == keyboard.KEY_DOWN and e.name == 'f8':
-        print('F8 pressed')
-        escuchar_comando()
+@unir_listas
+def ejecutar_comando(instrucciones: Instruccion) -> None:
+    global ejecutando
+    if ejecutando: # Si ya se está ejecutando un comando, no se ejecuta otro
+        return
 
-# Registra la función de manejo de eventos
-keyboard.hook(on_key_event)
+    ejecutando = True
 
-# Lo mantiene abierto
-keyboard.wait('esc')
+    for funcion, parametros in instrucciones:
+
+        if funcion == "hablar":
+            try:
+                hablar(parametros)
+            except:
+                pass
+
+        elif funcion == "ejecutar_app":
+            ejecutar_app(parametros)
+
+        elif funcion == "reproducir_audio":
+            reproducir_audio(parametros[0], parametros[1])
+    
+    ejecutando = False
+
+# Se ejecuta al presionar una tecla
+def on_key_event(e, conf):
+    global ejecutando
+    if ejecutando: # Si ya se está ejecutando un comando, no se ejecuta otro
+        return
+    
+    if e.event_type == keyboard.KEY_DOWN:
+        if e.name not in teclas_presionadas:
+            teclas_presionadas.add(e.name)
+            if e.name in conf.get('config', {}):
+                print(conf['config'][e.name])
+                try:
+                    # Se crea un hilo para salir del hook de keyboard
+                    hilo_ejecutar = threading.Thread(target=ejecutar_comando, args=(conf['config'][e.name][0], conf['config'][e.name][1],))
+                    hilo_ejecutar.start()
+                except:
+                    print("Espera un momento, ya se está ejecutando un comando")
+
+    # Evita que se ejecute el comando varias veces si se mantiene presionada la tecla
+    elif e.event_type == keyboard.KEY_UP:
+        if e.name in teclas_presionadas:
+            teclas_presionadas.remove(e.name)
+
+def main():
+    global config
+
+    print(config)
+
+    keyboard.hook(lambda e: on_key_event(e, config))
+    keyboard.wait()
+
+if __name__ == '__main__':
+    #ejecutar_comando(["hablar", "hablar"], ["Hola, buen día", "Chau, buenas tardes"])
+    main()
