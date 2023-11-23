@@ -1,7 +1,7 @@
 import json
 import keyboard
 import threading
-from funciones import hablar, ejecutar_app, reproducir_audio
+from funciones import hablar, ejecutar_app, reproducir_audio, reproducir_cancion_spotify, mostrar_foto, abrir_imagen
 
 Instruccion = list[list[str]]
 
@@ -44,6 +44,12 @@ def ejecutar_comando(instrucciones: Instruccion) -> None:
 
         elif funcion == "reproducir_audio":
             reproducir_audio(parametros[0], parametros[1])
+
+        elif funcion == "reproducir_spotify":
+            reproducir_cancion_spotify(parametros)
+
+        elif funcion == "mostrar_foto":
+            abrir_imagen(parametros)
     
     ejecutando = False
 
