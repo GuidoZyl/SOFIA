@@ -7,8 +7,11 @@ import time
 import pyautogui
 from PIL import Image, ImageTk
 import tkinter as tk
+from pydub import AudioSegment
+from pydub.playback import play
 
 def hablar(texto: str) -> None:
+    """Utiliza el text to speech para decir un texto."""
     engine = tts.init()
     engine.setProperty('rate', 145)
     engine.setProperty('voice', 'spanish')
@@ -16,17 +19,14 @@ def hablar(texto: str) -> None:
     engine.runAndWait()
 
 def ejecutar_app(ruta_ejecutable: str) -> None:
+    """Abre la aplicación especificada."""
     subprocess.run([ruta_ejecutable])
 
 def reproducir_audio(audio, duracion: float) -> None:
     pass
 
-def mostrar_foto(ruta_foto: str) -> None:
-    subprocess.run(['start', '', ruta_foto], shell=True)
-    time.sleep(0.7)
-    pyautogui.hotkey('f11')
-
 def reproducir_cancion_spotify(nombre_cancion: str) -> None:
+    """Reproduce la canción especificada en Spotify."""
     ### CAMBIAR PARA QUE SEA LA RUTA DE CADA USUARIO ###
     ruta_spotify = r"C:\Users\guido\AppData\Local\Microsoft\WindowsApps\Spotify.exe"
 
@@ -43,10 +43,7 @@ def reproducir_cancion_spotify(nombre_cancion: str) -> None:
  
     time.sleep(2)  # Esperar a que se carguen los resultados de búsqueda
 
-    ### CAMBIAR PARA QUE NO DEPENDA DE COORDENADAS ###
-    # Clickear el botón de reproducir
-    #pyautogui.click(x=490, y=400)
-
+    # Seleccionar el botón de reproducir
     pyautogui.press('tab')
     pyautogui.press('tab')
     pyautogui.press('tab')
@@ -58,17 +55,14 @@ def reproducir_cancion_spotify(nombre_cancion: str) -> None:
     pyautogui.press('enter')
 
 def abrir_imagen(ruta_imagen: str) -> None: 
-    # Crear una ventana de Tkinter
+    """Abre la imagen de la ruta especificada en pantalla completa. Se cierra al hacer click."""
     ventana = tk.Tk()
+    imagen = Image.open(ruta_imagen)
 
-    # Obtener el ancho y alto de la pantalla
     ancho_pantalla = ventana.winfo_screenwidth()
     alto_pantalla = ventana.winfo_screenheight()
 
-    # Abrir la imagen con Pillow
-    imagen = Image.open(ruta_imagen)
-
-    # Redimensionar la imagen para que se ajuste a la pantalla
+    # Redimensionar la imagen para cubrir toda la pantalla
     imagen = imagen.resize((ancho_pantalla, alto_pantalla), Image.ANTIALIAS)
 
     # Convertir la imagen a un formato que Tkinter pueda manejar
@@ -78,13 +72,12 @@ def abrir_imagen(ruta_imagen: str) -> None:
     etiqueta = tk.Label(ventana, image=imagen_tk)
     etiqueta.pack(fill=tk.BOTH, expand=True)
 
-    # Configurar la ventana para que ocupe toda la pantalla
     ventana.attributes('-fullscreen', True)
 
     # Ocultar el cursor
     ventana.config(cursor='none')
 
-    # Salir de la aplicación al hacer clic en la imagen
+    # Salir de la aplicación al hacer click
     etiqueta.bind('<Button-1>', lambda event: ventana.destroy())
 
     # Mostrar la ventana en primer plano
@@ -93,7 +86,6 @@ def abrir_imagen(ruta_imagen: str) -> None:
     ventana.attributes('-topmost', True)
     ventana.after_idle(ventana.attributes, '-topmost', False)
 
-    # Iniciar el bucle de la interfaz gráfica de usuario
     ventana.mainloop()
 
 

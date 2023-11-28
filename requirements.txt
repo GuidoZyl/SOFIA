@@ -3,3 +3,5 @@ pyaudio
 keyboard
 pyttsx3
 pyautogui
+Pillow
+pyinstaller
