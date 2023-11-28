@@ -1,12 +1,15 @@
+"""
+Funciones del asistente virtual
+"""
 import subprocess
-import speech_recognition as sr
-import keyboard
-import pyttsx3 as tts
 import threading
 import time
-import pyautogui
-from PIL import Image, ImageTk
 import tkinter as tk
+import keyboard
+import pyttsx3 as tts
+import pyautogui
+import speech_recognition as sr
+from PIL import Image, ImageTk
 from pydub import AudioSegment
 from pydub.playback import play
 
@@ -20,9 +23,10 @@ def hablar(texto: str) -> None:
 
 def ejecutar_app(ruta_ejecutable: str) -> None:
     """Abre la aplicación especificada."""
-    subprocess.run([ruta_ejecutable])
+    subprocess.run([ruta_ejecutable], check=False)
 
 def reproducir_audio(audio, duracion: float) -> None:
+    """Reproduce un audio"""
     pass
 
 def reproducir_cancion_spotify(nombre_cancion: str) -> None:
@@ -38,9 +42,10 @@ def reproducir_cancion_spotify(nombre_cancion: str) -> None:
     pyautogui.hotkey('ctrl', 'l')  # Seleccionar la barra de búsqueda
     time.sleep(1)
 
-    # Nota: el nombre de la canción debe ser tal que la primera canción que aparezca en los resultados de búsqueda sea la que se quiere reproducir
-    pyautogui.write(nombre_cancion) 
- 
+    # Nota: el nombre de la canción debe ser tal que la primera canción que aparezca en
+    # los resultados de búsqueda sea la que se quiere reproducir
+    pyautogui.write(nombre_cancion)
+
     time.sleep(2)  # Esperar a que se carguen los resultados de búsqueda
 
     # Seleccionar el botón de reproducir
@@ -54,7 +59,7 @@ def reproducir_cancion_spotify(nombre_cancion: str) -> None:
     time.sleep(0.8)
     pyautogui.press('enter')
 
-def abrir_imagen(ruta_imagen: str) -> None: 
+def abrir_imagen(ruta_imagen: str) -> None:
     """Abre la imagen de la ruta especificada en pantalla completa. Se cierra al hacer click."""
     ventana = tk.Tk()
     imagen = Image.open(ruta_imagen)
@@ -91,6 +96,6 @@ def abrir_imagen(ruta_imagen: str) -> None:
 
 if __name__ == '__main__':
     #ejecutar_app("C:\Riot Games\Riot Client\RiotClientServices.exe")
-    hilo_hablar = threading.Thread(target=hablar, args=("Hola, soy tu asistente virtual, ¿en qué te puedo ayudar?",))
+    hilo_hablar = threading.Thread(target=hablar, args=("Hola, soy tu asistente virtual",))
     hilo_hablar.start()
     reproducir_cancion_spotify("Necesito")
