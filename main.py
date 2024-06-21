@@ -3,8 +3,10 @@
 import json
 import threading
 import os
-import sys
 import keyboard
+import subprocess
+import psutil
+import time
 from pystray import Icon, Menu, MenuItem
 from PIL import Image
 import funciones as fn
@@ -17,7 +19,7 @@ ejecutando = False
 # Cargar la configuración
 def cargar_configuracion():
     """Carga la configuración desde el archivo json."""
-    with open("prueba_config.json", "r", encoding="utf-8") as archivo:
+    with open("prueba_config2.json", "r", encoding="utf-8") as archivo:
         return json.load(archivo)
 
 config = cargar_configuracion()
@@ -63,7 +65,7 @@ def ejecutar_comando(instrucciones: Instruccion) -> None:
 # Se ejecuta al presionar una tecla
 def on_key_event(e, conf):
     """Se ejecuta al presionar una tecla"""
-    if ejecutando: # Si ya se está ejecutando un comando, no se ejecuta otro
+    if ejecutando or cli_esta_abierto: # Si ya se está ejecutando un comando, no se ejecuta otro
         return
 
     if e.event_type == keyboard.KEY_DOWN:
@@ -96,17 +98,52 @@ def on_exit(icon):
     os._exit(0)
     #sys.exit()
 
+cli_proceso = None
+cli_esta_abierto = False
+def abrir_cli():
+    global cli_proceso
+    global cli_esta_abierto
+
+    cli_esta_abierto = cli_en_ejecucion()
+    if not cli_esta_abierto:
+        cli_proceso = subprocess.Popen(['cmd', '/c', 'start', 'cmd', '/k', 'python', "cli.py"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        cli_esta_abierto = True
+        checkear_cli = threading.Thread(target=checkear_cli_en_ejecucion)
+        checkear_cli.start()
+
+def cli_en_ejecucion():
+    for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+        try:
+            if 'cmd.exe' in proc.info['name'] and 'python' in proc.cmdline() and 'cli.py' in proc.cmdline():
+                return True
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+    return False
+
+def checkear_cli_en_ejecucion():
+    print("EMPECÉ")
+    global cli_esta_abierto
+    while cli_esta_abierto:
+        time.sleep(3)       
+        if not cli_en_ejecucion():
+            print("CERRADO")
+            cli_esta_abierto = False
+        print("CHEQUEADO")
+
 
 def configurar_icono():
     """Configura el ícono en la barra de tareas."""
     image = Image.open(r"E:\Guido\Descargas\icon-512x512.png")
 
-    menu = (Menu(MenuItem('Salir', on_exit),))
+    menu = Menu(
+        MenuItem('Modificar comandos', abrir_cli),
+        MenuItem('Salir', on_exit)
+        )
+        
 
     icon = Icon("SOFIA", image, "SOFIA", menu=menu)
     icon.run()
     print("Saliendo...")
-    return sys.exit()
 
 def main():
     """Función principal del programa. Escucha eventos de teclado y 

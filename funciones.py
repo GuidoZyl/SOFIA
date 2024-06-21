@@ -5,13 +5,14 @@ import subprocess
 import threading
 import time
 import tkinter as tk
-import keyboard
+#import keyboard
 import pyttsx3 as tts
 import pyautogui
-import speech_recognition as sr
+#import speech_recognition as sr
 from PIL import Image, ImageTk
-from pydub import AudioSegment
-from pydub.playback import play
+#from pydub import AudioSegment
+#from pydub.playback import play
+import json
 
 def hablar(texto: str) -> None:
     """Utiliza el text to speech para decir un texto."""
@@ -93,6 +94,10 @@ def abrir_imagen(ruta_imagen: str) -> None:
 
     ventana.mainloop()
 
+def agregar_comando(tecla: str) -> None:
+    """Agrega un comando al JSON"""
+    with open("prueba_config.json", "r+", encoding="utf-8") as archivo:
+        config = json.load(archivo)
 
 if __name__ == '__main__':
     #ejecutar_app("C:\Riot Games\Riot Client\RiotClientServices.exe")
