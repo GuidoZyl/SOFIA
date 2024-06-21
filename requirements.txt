@@ -5,3 +5,4 @@ pyttsx3
 pyautogui
 Pillow
 pyinstaller
+psutil
