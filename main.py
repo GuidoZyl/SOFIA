@@ -62,18 +62,17 @@ def ejecutar_comando(instrucciones: Instruccion) -> None:
 
     ejecutando = False
 
-# Se ejecuta al presionar una tecla
 def on_key_event(e, conf):
     """Se ejecuta al presionar una tecla"""
-    if ejecutando or cli_esta_abierto: # Si ya se está ejecutando un comando, no se ejecuta otro
+    if ejecutando or cli_esta_abierto: # Si ya se está ejecutando un comando o está abierta la CLI, no se ejecuta otro
         return
 
     if e.event_type == keyboard.KEY_DOWN:
         print(e.name)
         if e.name not in teclas_presionadas:
             #teclas_presionadas.add(e.name)
-            if e.name in conf.get('config', {}):
-                instruccion = conf['config'][e.name]
+            if e.name in conf.get('comandos', {}):
+                instruccion = conf['comandos'][e.name]
                 print(instruccion)
                 try:
                     # Se crea un hilo para salir del hook de keyboard
@@ -88,16 +87,6 @@ def on_key_event(e, conf):
     #     if e.name in teclas_presionadas:
     #         teclas_presionadas.remove(e.name)
 
-
-def on_exit(icon):
-    """Cierra el programa."""
-    icon.stop()
-    despedida = threading.Thread(target=fn.hablar, args=("Hasta luego",))
-    despedida.start()
-    despedida.join()
-    os._exit(0)
-    #sys.exit()
-
 cli_proceso = None
 cli_esta_abierto = False
 def abrir_cli():
@@ -111,7 +100,8 @@ def abrir_cli():
         checkear_cli = threading.Thread(target=checkear_cli_en_ejecucion)
         checkear_cli.start()
 
-def cli_en_ejecucion():
+def cli_en_ejecucion() -> bool:
+    """Verifica si está abierto el CMD que ejecuta el CLI"""
     for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
         try:
             if 'cmd.exe' in proc.info['name'] and 'python' in proc.cmdline() and 'cli.py' in proc.cmdline():
@@ -130,6 +120,23 @@ def checkear_cli_en_ejecucion():
             cli_esta_abierto = False
         print("CHEQUEADO")
 
+def on_exit(icon):
+    """Cierra el programa."""
+    icon.stop()
+
+    # Cierra la CLI en caso de estar abierta
+    if cli_esta_abierto:
+        for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+            if proc.info['name'] == 'cmd.exe' and 'python' in proc.info['cmdline'] and 'cli.py' in proc.cmdline():
+                os.system(f'taskkill /PID {proc.info["pid"]} /T /F')
+                break
+ 
+
+    despedida = threading.Thread(target=fn.hablar, args=("Hasta luego",))
+    despedida.start()
+    despedida.join()
+    os._exit(0)
+    #sys.exit()
 
 def configurar_icono():
     """Configura el ícono en la barra de tareas."""
