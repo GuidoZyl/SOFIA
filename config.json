@@ -1,6 +1,10 @@
 {
+    "comandos": {
+        "f8": [["Hablar", "Hablar"], ["Hola, buen día", "Chau, hasta luego"]],
+        "f7": [["Hablar", "Hablar"], ["Hola, buen día", "Chau, hasta luego"]]
+    },
+
     "config": {
-    "f8": [["hablar", "hablar"], ["Hola, buen día", "Chau, hasta luego"]],
-    "f7": [["hablar", "hablar"], ["Hola, buen día", "Chau, hasta luego"]]
+        "ruta_spotify": ""
     }
 }

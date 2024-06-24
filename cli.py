@@ -6,9 +6,14 @@ def mostrar_comandos():
     for clave in config:
         texto_a_mostrar = f"{config[clave][2]} ({clave}) - "
         for i in range(len(config[clave][0])):
-            texto_a_mostrar += f"{config[clave][0][i]}: {config[clave][1][i]}, "
+            valor = config[clave][1][i]
+            comando = config[clave][0][i]
+            if comando in ["Hablar", "Reproducir Spotify"]:
+                valor = "'" + valor + "'"
+            texto_a_mostrar += f"{config[clave][0][i]}: {valor}, "
         texto_a_mostrar = texto_a_mostrar[:-2]
         print(texto_a_mostrar)
+    print("") # Espacio vacío para que no se pegue con el selector de opciones
 
 def editar_comandos():
     pass

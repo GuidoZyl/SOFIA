@@ -24,7 +24,7 @@ def actualizar_lista_atajos():
     #     print("\n", atajo)
     #     lista_atajos.insert(tk.END, f"{tecla}: {atajo} - {atajo}")
     # itero entre todos los valores de mi diccionario {"f8": [["hablar"], ["hola"]]}
-    for tecla, instrucciones in atajos["config"].items():
+    for tecla, instrucciones in atajos["comandos"].items():
         instrucciones_str = ""
         for i in range(len(instrucciones[0])):
             comando = instrucciones[0][i]

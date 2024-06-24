@@ -42,22 +42,22 @@ def ejecutar_comando(instrucciones: Instruccion) -> None:
     ejecutando = True
 
     for funcion, parametros in instrucciones:
-        if funcion == "hablar":
+        if funcion == "Hablar":
             try:
                 fn.hablar(parametros)
             except:
                 pass
 
-        elif funcion == "ejecutar_app":
+        elif funcion == "Ejecutar App":
             fn.ejecutar_app(parametros)
 
-        elif funcion == "reproducir_audio":
+        elif funcion == "Reproducir audio":
             fn.reproducir_audio(parametros[0], parametros[1])
 
-        elif funcion == "reproducir_spotify":
+        elif funcion == "Reproducir Spotify":
             fn.reproducir_cancion_spotify(parametros)
 
-        elif funcion == "mostrar_foto":
+        elif funcion == "Mostrar foto":
             fn.abrir_imagen(parametros)
 
     ejecutando = False
@@ -111,18 +111,16 @@ def cli_en_ejecucion() -> bool:
     return False
 
 def checkear_cli_en_ejecucion():
-    print("EMPECÉ")
     global cli_esta_abierto
     while cli_esta_abierto:
         time.sleep(3)       
         if not cli_en_ejecucion():
-            print("CERRADO")
             cli_esta_abierto = False
-        print("CHEQUEADO")
 
 def on_exit(icon):
     """Cierra el programa."""
     icon.stop()
+    time.sleep(0.1)
 
     # Cierra la CLI en caso de estar abierta
     if cli_esta_abierto:
@@ -135,7 +133,8 @@ def on_exit(icon):
     despedida = threading.Thread(target=fn.hablar, args=("Hasta luego",))
     despedida.start()
     despedida.join()
-    os._exit(0)
+
+    # El comando para cerrar el programa está en configurar_icono() para evitar problemas
     #sys.exit()
 
 def configurar_icono():
@@ -150,7 +149,7 @@ def configurar_icono():
 
     icon = Icon("SOFIA", image, "SOFIA", menu=menu)
     icon.run()
-    print("Saliendo...")
+    os._exit(0)
 
 def main():
     """Función principal del programa. Escucha eventos de teclado y 
