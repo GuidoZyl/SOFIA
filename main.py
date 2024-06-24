@@ -95,7 +95,31 @@ def abrir_cli():
 
     cli_esta_abierto = cli_en_ejecucion()
     if not cli_esta_abierto:
-        cli_proceso = subprocess.Popen(['cmd', '/c', 'start', 'cmd', '/k', 'python', "cli.py"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        #cli_proceso = subprocess.Popen(['cmd', '/c', 'start', 'cmd.exe', '/k', 'python', "cli.py"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        # def crear_bat_temporal(ruta_script, titulo_cmd):
+        #     contenido_bat = f"""
+        # @echo off
+        # title {titulo_cmd}
+        # python "{ruta_script}"
+        # """
+        #     ruta_bat = os.path.join(os.path.dirname(ruta_script), "temp_script.bat")
+        #     with open(ruta_bat, "w") as archivo_bat:
+        #         archivo_bat.write(contenido_bat)
+        #     return ruta_bat
+        
+        #titulo_cmd = "Comandos - SOFIA"
+        #ruta_script = "cli.py"
+
+        #ruta_bat = crear_bat_temporal(ruta_script, titulo_cmd)
+        #print(ruta_bat)
+        comando = f'start "Comandos - SOFIA" cmd.exe /k "abrir_cli.bat"'
+        cli_proceso = subprocess.Popen(comando, shell=True)
+        #comando = f'start "{titulo_cmd}" cmd.exe /k "title {titulo_cmd} & python \"{ruta_script}\""'
+        #comando = 'cmd /c start cmd.exe /k python "cli.py"'
+        #cli_proceso = subprocess.Popen(comando, shell=True)
+        
+        # TRATAR DE PONERLE UN TÍTULO PERSONALIZADO
         cli_esta_abierto = True
         checkear_cli = threading.Thread(target=checkear_cli_en_ejecucion)
         checkear_cli.start()
@@ -104,7 +128,7 @@ def cli_en_ejecucion() -> bool:
     """Verifica si está abierto el CMD que ejecuta el CLI"""
     for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
         try:
-            if 'cmd.exe' in proc.info['name'] and 'python' in proc.cmdline() and 'cli.py' in proc.cmdline():
+            if 'cmd.exe' in proc.info['name'] and 'abrir_cli.bat' in proc.cmdline():
                 return True
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
@@ -125,7 +149,7 @@ def on_exit(icon):
     # Cierra la CLI en caso de estar abierta
     if cli_esta_abierto:
         for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
-            if proc.info['name'] == 'cmd.exe' and 'python' in proc.info['cmdline'] and 'cli.py' in proc.cmdline():
+            if proc.info['name'] == 'cmd.exe' and 'abrir_cli.bat' in proc.cmdline():
                 os.system(f'taskkill /PID {proc.info["pid"]} /T /F')
                 break
  
@@ -134,7 +158,7 @@ def on_exit(icon):
     despedida.start()
     despedida.join()
 
-    # El comando para cerrar el programa está en configurar_icono() para evitar problemas
+    # El comando para cerrar el programa está en configurar_icono() para evitar bugs
     #sys.exit()
 
 def configurar_icono():
