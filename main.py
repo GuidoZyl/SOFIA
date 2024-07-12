@@ -93,33 +93,8 @@ def abrir_cli():
     global cli_proceso
     global cli_esta_abierto
 
-    cli_esta_abierto = cli_en_ejecucion()
     if not cli_esta_abierto:
-        #cli_proceso = subprocess.Popen(['cmd', '/c', 'start', 'cmd.exe', '/k', 'python', "cli.py"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-        # def crear_bat_temporal(ruta_script, titulo_cmd):
-        #     contenido_bat = f"""
-        # @echo off
-        # title {titulo_cmd}
-        # python "{ruta_script}"
-        # """
-        #     ruta_bat = os.path.join(os.path.dirname(ruta_script), "temp_script.bat")
-        #     with open(ruta_bat, "w") as archivo_bat:
-        #         archivo_bat.write(contenido_bat)
-        #     return ruta_bat
-        
-        #titulo_cmd = "Comandos - SOFIA"
-        #ruta_script = "cli.py"
-
-        #ruta_bat = crear_bat_temporal(ruta_script, titulo_cmd)
-        #print(ruta_bat)
-        comando = f'start "Comandos - SOFIA" cmd.exe /k "abrir_cli.bat"'
-        cli_proceso = subprocess.Popen(comando, shell=True)
-        #comando = f'start "{titulo_cmd}" cmd.exe /k "title {titulo_cmd} & python \"{ruta_script}\""'
-        #comando = 'cmd /c start cmd.exe /k python "cli.py"'
-        #cli_proceso = subprocess.Popen(comando, shell=True)
-        
-        # TRATAR DE PONERLE UN TÍTULO PERSONALIZADO
+        cli_proceso = subprocess.Popen('start "Comandos - SOFIA" cmd.exe /k "abrir_cli.bat"', shell=True) 
         cli_esta_abierto = True
         checkear_cli = threading.Thread(target=checkear_cli_en_ejecucion)
         checkear_cli.start()
@@ -137,14 +112,13 @@ def cli_en_ejecucion() -> bool:
 def checkear_cli_en_ejecucion():
     global cli_esta_abierto
     while cli_esta_abierto:
-        time.sleep(3)       
+        time.sleep(2)       
         if not cli_en_ejecucion():
             cli_esta_abierto = False
 
 def on_exit(icon):
     """Cierra el programa."""
     icon.stop()
-    time.sleep(0.1)
 
     # Cierra la CLI en caso de estar abierta
     if cli_esta_abierto:
@@ -167,6 +141,7 @@ def configurar_icono():
 
     menu = Menu(
         MenuItem('Modificar comandos', abrir_cli),
+        Menu.SEPARATOR,
         MenuItem('Salir', on_exit)
         )
         
